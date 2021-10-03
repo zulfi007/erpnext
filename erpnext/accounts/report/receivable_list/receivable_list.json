@@ -1,0 +1,41 @@
+{
+ "add_total_row": 1,
+ "columns": [],
+ "creation": "2021-07-15 17:01:13.653141",
+ "disable_prepared_report": 1,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "javascript": "frappe.query_reports[\"Receivable List\"] = {\n\"filters\": [\n                {\n                        \"fieldname\":\"from_date\",\n                        \"label\": __(\"From\"),\n                        \"fieldtype\": \"Date\",\n                        \"default\": frappe.datetime.get_today()\n                },\n                {\n                        \"fieldname\":\"to_date\",\n                        \"label\": __(\"To Date\"),\n                        \"fieldtype\": \"Date\",\n                        \"default\": frappe.datetime.get_today()\n                },\n                {\n                        \"fieldname\":\"company\",\n                        \"label\": __(\"Company\"),\n                        \"fieldtype\": \"Link\",\n                        \"options\": \"Company\",\n                        \"default\": frappe.defaults.get_user_default(\"Company\")\n\n               }\n        ]\n};",
+ "modified": "2021-10-03 08:01:50.896999",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "Receivable List",
+ "owner": "zulfiqarawan@gmail.com",
+ "prepared_report": 0,
+ "ref_doctype": "Account",
+ "reference_report": "",
+ "report_name": "Receivable List",
+ "report_script": "def execute(filters=None):\n    if not filters: filters = {}\n\n    columns = get_columns()\n   # data = get_employees(filters)\n\n    return columns, [{PostingDate: \"10/10/10\"},]\n\n\ndef get_columns():\n    return [\n        _(\"PostingDate\")+ \":Data:120\"\n    ]\n\n\n",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Auditor"
+  },
+  {
+   "role": "Purchase User"
+  },
+  {
+   "role": "Sales User"
+  },
+  {
+   "role": "Accounts User"
+  }
+ ]
+}

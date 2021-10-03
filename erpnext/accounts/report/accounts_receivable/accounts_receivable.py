@@ -722,7 +722,7 @@ class ReceivablePayableReport(object):
 		if not party in self.party_details:
 			if self.party_type == 'Customer':
 				self.party_details[party] = frappe.db.get_value('Customer', party, ['customer_name',
-					'territory', 'customer_group', 'customer_primary_contact'], as_dict=True)
+					'territory', 'customer_group', 'customer_primary_contact','primary_address','sales_person'], as_dict=True)
 			else:
 				self.party_details[party] = frappe.db.get_value('Supplier', party, ['supplier_name',
 					'supplier_group'], as_dict=True)
