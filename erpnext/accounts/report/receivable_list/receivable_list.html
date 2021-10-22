@@ -32,37 +32,33 @@
 	<table class="table table-borderless align-right">
 		<thead>
 			<tr>
-				<th width="30%">{%= __("Customer Name") %}</th>
-				<th width="30%">{%= __("Address") %}</th>
-				{% if (!filters.territory) { %}
+				<th width="40%">{%= __("Customer Name") %}</th>
+				<th width="23%" >{%= __("Address") %} </th>
+				{% if (!filters.territory && !filters.sales_person) { %}
 					<th width="3%">{%= __("Territory") %}</th>
 				{% }%}
-				{% if (!filters.sales_person) { %}
+				{% if (!filters.territory && !filters.sales_person) { %}
 				<th width="4%">{%= __("Agent") %}</th>
 			{% }%}
-				<th width="7%">{%= __("Open Invoiced") %}</th>
-				<th width="8%">{%= __("OverDue") %}</th>
+				<th width="9%">{%= __("OverDue") %}</th>
 				<th width="13%">{%= __("Total Balance") %}</th>
-				<th width="3%">{%= __("Code") %}</th>
-				<th width="5%">{%= __("") %}</th>
+				<th width="4%">{%= __("Code") %}</th>
+				<th width="4%">{%= __("") %}</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody style="font-size: 1rem; white-space:nowrap;">
 			{% for(var i=0, l=data.length; i<l; i++) { %}
 				<tr style="font-size: 10px;">
 					<td>{%= data[i]["party"] %}	 </td>					
 					<td>{%= data[i]["primary_address"]?
 						data[i]["primary_address"].replaceAll("<br>"," ").replace("Pakistan",""):
 						"" %}</td>
-						{% if (!filters.territory) { %}
-								<td>{%= data[i]["territory"] %}	 </td>
+						{% if (!filters.territory && !filters.sales_person) { %}
+							<td>{%= data[i]["territory"] %}	 </td>
 						{%} %}
-						{% if (!filters.sales_person) { %}
+						{% if (!filters.territory && !filters.sales_person) { %}
 							<td>{%= data[i]["sales_person"] %}	 </td>
 						{%} %}
-					<td style="text-align: right">
-							{%= format_currency(data[i]["invoiced"], data[i]["currency"] ) %}
-					</td>
 					<td style="text-align: right">
 						{%= format_currency(data[i]["total_due"], data[i]["currency"]) %}
 					</td>

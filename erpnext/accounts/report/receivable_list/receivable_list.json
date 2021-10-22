@@ -10,7 +10,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "javascript": "frappe.query_reports[\"Receivable List\"] = {\n\"filters\": [\n                {\n                        \"fieldname\":\"from_date\",\n                        \"label\": __(\"From\"),\n                        \"fieldtype\": \"Date\",\n                        \"default\": frappe.datetime.get_today()\n                },\n                {\n                        \"fieldname\":\"to_date\",\n                        \"label\": __(\"To Date\"),\n                        \"fieldtype\": \"Date\",\n                        \"default\": frappe.datetime.get_today()\n                },\n                {\n                        \"fieldname\":\"company\",\n                        \"label\": __(\"Company\"),\n                        \"fieldtype\": \"Link\",\n                        \"options\": \"Company\",\n                        \"default\": frappe.defaults.get_user_default(\"Company\")\n\n               }\n        ]\n};",
- "modified": "2021-10-03 08:01:50.896999",
+ "modified": "2021-10-22 17:54:31.903209",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Receivable List",
