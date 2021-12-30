@@ -9,7 +9,6 @@
 </style>
 	<p class="text-right text-muted">{{ __("Printed On ") }}{%= frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string()) %}</p>
 	<div class="container">
-	<h2 class="text-center" style="margin-top:0">{%= __(report.report_name) %}</h2>
 	<div class="row">
 		{% if (filters.customer) { %}
 		<div class="col text-center font-weight-light"> 
@@ -40,17 +39,17 @@
 
 			</tr>
 		</thead>
-		<tbody style="font-size: 1.15rem; white-space:nowrap;">
+		<tbody style="font-size: 1rem; white-space:nowrap;">
 			{% for(var i=0, l=data.length; i<l; i++) { %}
 				<tr style="text-align: left; max-width: 90%">
 					<td style="text-align: left">{%= data[i]["party"] %}	 </td>					
 					<td style="max-width:30px;text-overflow:ellipsis; overflow: hidden;">{%= data[i]["primary_address"]?
 						data[i]["primary_address"].replaceAll("<br>"," ").replace("Pakistan",""):
 						"" %}</td>
-					<td style="text-align: center; font-size:1.5rem">
+					<td style="text-align: center; font-size:1.3rem">
 							{%= format_currency(data[i]["balance"].toFixed(), data[i]["currency"]).split(".")[0] %}
 					</td>
-					<td style="text-align: right;font-weight:bold;font-size:1.5rem">	
+					<td style="text-align: right;font-weight:bold;font-size:1.3rem">	
 						{%= data[i]["party"]?data[i]["party"].split("-",2)[0]:"" %}
 					</td>
 
