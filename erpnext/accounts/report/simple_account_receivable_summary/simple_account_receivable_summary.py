@@ -12,16 +12,16 @@ from itertools import accumulate, groupby
 
 
 def execute(filters=None):
-	return CollectionReport().run(filters)
+	return ReceivableSummaryReport().run(filters)
 
-class CollectionReport():
+class ReceivableSummaryReport():
 	def run(self, filters):
 		self.get_columns()
 		self.get_data(filters)
-		message="Account Receivable Summary Report"
+		message=""
 		chart=[]
 		self.get_summary(filters)
-		return self.columns, self.data,message,chart,self.summary
+		return self.columns, self.data
 
 	def get_data(self, filters):
 		self.data=[]
