@@ -45,6 +45,7 @@ class ReceivableSummaryReport():
 					cust.last_payment_amount, cust.last_payment_date,cust.last_invoice_amount,cust.last_invoice_date)
 			.where(gl.party_type=='Customer')
 			.where(gl.docstatus==1)
+			.where(gl.is_cancelled==0)
 			.groupby(gl.party)
 			.orderby(gl.party)
 		)
