@@ -27,14 +27,22 @@ class ReceivableSummaryReport():
 		self.data=[]
 		gl	= 	frappe.qb.DocType('GL Entry')
 		customer	= 	frappe.qb.DocType('Customer')
+		kpi	= frappe.qb.DocType('Customer KPI')
 		debit = 	Sum(gl.debit).as_("debit")
 		credit = 	Sum(gl.credit).as_("credit")
-
+		cust = (frappe.qb.from_(customer)
+					.join(kpi)
+					.on(customer.name == kpi.parent)
+					.select(customer.name,customer.primary_address,customer.sales_person,kpi.last_payment_amount,kpi.last_payment_date,
+							kpi.last_invoice_date,kpi.last_invoice_amount)
+					.where(customer.name==kpi.parent).limit(1)
+		)
 
 		query = (frappe.qb.from_(gl) 
-			.join(customer)
-			.on(customer.name == gl.party)
-			.select(gl.party,(debit-credit).as_("balance"),customer.primary_address,customer.sales_person)
+			.left_join(cust)
+			.on( gl.party==cust.name)
+			.select(gl.party,(debit-credit).as_("balance"),cust.name,cust.primary_address,cust.sales_person,
+					cust.last_payment_amount, cust.last_payment_date,cust.last_invoice_amount,cust.last_invoice_date)
 			.where(gl.party_type=='Customer')
 			.where(gl.docstatus==1)
 			.groupby(gl.party)
