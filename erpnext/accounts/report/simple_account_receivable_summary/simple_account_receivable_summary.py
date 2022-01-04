@@ -26,23 +26,22 @@ class ReceivableSummaryReport():
 	def get_data(self, filters):
 		self.data=[]
 		gl	= 	frappe.qb.DocType('GL Entry')
-		customer	= 	frappe.qb.DocType('Customer')
+		customerTable	= 	frappe.qb.DocType('Customer')
 		kpi	= frappe.qb.DocType('Customer KPI')
 		debit = 	Sum(gl.debit).as_("debit")
 		credit = 	Sum(gl.credit).as_("credit")
-		cust = (frappe.qb.from_(customer)
-					.join(kpi)
-					.on(customer.name == kpi.parent)
-					.select(customer.name,customer.primary_address,customer.sales_person,kpi.last_payment_amount,kpi.last_payment_date,
+		customer = (frappe.qb.from_(customerTable)
+					.left_join(kpi)
+					.on(customerTable.name == kpi.parent)
+					.select(customerTable.star,kpi.last_payment_amount,kpi.last_payment_date,
 							kpi.last_invoice_date,kpi.last_invoice_amount)
-					.where(customer.name==kpi.parent).limit(1)
 		)
 
 		query = (frappe.qb.from_(gl) 
-			.left_join(cust)
-			.on( gl.party==cust.name)
-			.select(gl.party,(debit-credit).as_("balance"),cust.name,cust.primary_address,cust.sales_person,
-					cust.last_payment_amount, cust.last_payment_date,cust.last_invoice_amount,cust.last_invoice_date)
+			.left_join(customer)
+			.on( gl.party==customer.name)
+			.select(gl.party,(debit-credit).as_("balance"),customer.name,customer.primary_address,customer.sales_person,
+					customer.last_payment_amount, customer.last_payment_date,customer.last_invoice_amount,customer.last_invoice_date)
 			.where(gl.party_type=='Customer')
 			.where(gl.docstatus==1)
 			.where(gl.is_cancelled==0)
@@ -61,7 +60,7 @@ class ReceivableSummaryReport():
 		if filters.min_balance is not None :
 			query=query.having((debit-credit)>filters.min_balance)
 
-		
+		frappe.msgprint(query.get_sql())
 		# credit_case = frappe.qb.terms.Case().when(gl.voucher_type == "Payment Entry", gl.credit).else_(0)
 
 
