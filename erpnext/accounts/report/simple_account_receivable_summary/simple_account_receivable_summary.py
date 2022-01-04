@@ -60,7 +60,6 @@ class ReceivableSummaryReport():
 		if filters.min_balance is not None :
 			query=query.having((debit-credit)>filters.min_balance)
 
-		frappe.msgprint(query.get_sql())
 		# credit_case = frappe.qb.terms.Case().when(gl.voucher_type == "Payment Entry", gl.credit).else_(0)
 
 
