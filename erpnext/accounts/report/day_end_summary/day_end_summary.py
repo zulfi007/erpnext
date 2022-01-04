@@ -34,16 +34,16 @@ class CollectionReport():
 		self.total_expenses=0
 
 		expenses = frappe.qb.from_(journal) \
-			.select(accounts.account,Sum(accounts.debit).as_("expense_amount")) \
+			.select(accounts.account,accounts.party,accounts.user_remark,accounts.debit.as_("expense_amount")) \
 			.join(accounts) \
 			.on(journal.name == accounts.parent) \
 			.where(journal.posting_date==filters.report_date) \
 			.where(accounts.account !='Cash - AT') \
-			.groupby(accounts.account) \
+			.where(accounts.debit!=0) \
 			.run(as_dict=True)	
 
 		collections = (frappe.qb.from_(pEntry)
-					.select(paid_amount,pEntry.sales_person)
+					.select(paid_amount,pEntry.sales_person,pEntry.territory)
 					.where(pEntry.posting_date == filters.report_date)
 					.where(pEntry.payment_type == 'Receive')
 					.where(pEntry.party_type== 'Customer')
@@ -95,6 +95,17 @@ class CollectionReport():
 
 		chart_data=[ val['net_amount'] for val in collections]	
 		self.total_sales =reduce(lambda total,value: total+value,chart_data,0)
+
+		summary={
+			'cash_in_hand':self.cash_in_hand,
+			'bank_in_hand':self.bank_in_hand,
+			'today_collection':self.total_paid,
+			'today_expenses':self.total_expenses,
+			'today_sales':self.total_sales,
+			'account_receivable':self.acc_receivable
+			}
+
+		self.data.append({'totals':summary})
 
 		self.chart = {
 			'data': {
