@@ -1,6 +1,4 @@
   
-{%- from "templates/print_formats/standard_macros.html" import add_header, print_value with context -%}
-
 <style>
 	.print-format {
 		padding: 4mm;
@@ -61,35 +59,5 @@
 				</tr>
 			{% } %}
 
-			<!-- <tr class="cvs-footer">
-				<th class="text-left">{%= __("Cheques Required") %}</th>
-				<th></th>
-				<th></th>
-				<th></th>
-				<th></th>
-				<th></th>
-				<th></th>
-				<th class="text-right">
-			</tr> -->
-
 		</tbody>
 	</table>
-
-	{% for page in layout %}
-	<div class="page-break">
-		<div {% if print_settings.repeat_header_footer %} id="header-html" class="hidden-pdf" {% endif %}>
-			{{ add_header(loop.index, layout|len, doc, letter_head, no_letterhead, footer, print_settings) }}
-		</div>
-	
-		{% if print_settings.repeat_header_footer %}
-		<div id="footer-html" class="visible-pdf">
-			{% if not no_letterhead and footer %}
-			<div class="letter-head-footer">
-				{{ footer }}
-			</div>
-			{% endif %}
-			<p class="text-center small page-number visible-pdf">
-				{{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
-			</p>
-		</div>
-		{% endif %}
