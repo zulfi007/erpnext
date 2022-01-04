@@ -73,10 +73,12 @@
 					{% } %}
 				{% } else { %}
 					<th style="width: 40%">{%= (filters.customer || filters.supplier) ? __(""): __("Party") %}</th>
-					<th style="width: 15%">{%= __("Total Invoiced Amount") %}</th>
-					<th style="width: 15%">{%= __("Total Paid Amount") %}</th>
-					<th style="width: 15%">{%= report.report_name === "Accounts Receivable Summary" ? __('Credit Note Amount') : __('Debit Note Amount') %}</th>
-					<th style="width: 15%">{%= __("Total Outstanding Amount") %}</th>
+					<th style="width: 7%">{%= __("0-30") %}</th>
+					<th style="width: 7%">{%= __("31-60") %}</th>
+					<th style="width: 7%">{%= __("61-90") %}</th>
+					<th style="width: 7%">{%= __("90+") %}</th>
+					<th style="width: 22%">{%= __("Total Outstanding Amount") %}</th>
+
 				{% } %}
 			</tr>
 		</thead>
@@ -183,11 +185,17 @@
 						{% } else { %}
 							<td><b>{%= __("Total") %}</b></td>
 						{% } %}
-                        {%= console.log(data[i]) %}
-						<td style="text-align: right">{%= format_currency(data[i]["invoiced"], data[i]["currency"]) %}</td>
-						<td style="text-align: right">{%= format_currency(data[i]["paid"], data[i]["currency"]) %}</td>
-						<td style="text-align: right">{%= format_currency(data[i]["credit_note"], data[i]["currency"]) %}</td>
+						<td style="text-align: right">{%= data[i]["range1"]==0? '':data[i]["range1"] %}</td>
+						<td style="text-align: right">{%= data[i]["range2"]==0? '':data[i]["range2"] %}</td>
+						<td style="text-align: right">{%= data[i]["range3"]==0? '':data[i]["range"] %}</td>
+						<td style="text-align: right">{%= (data[i]["range4"]+data[i]["range5"])==0?'':data[i]["range4"]+data[i]["range5"] %}</td>
+						{% if(!data[i]["is_total_row"]) { %}
 						<td style="text-align: right">{%= format_currency(data[i]["outstanding"], data[i]["currency"]) %}</td>
+
+						{% } else { %}
+						<td style="text-align: right;font-weight:bold;font-size: 120%">{%= format_currency(data[i]["outstanding"], data[i]["currency"]) %}</td>
+						{% } %}
+
 					{% } %}
 				{% } %}
 				</tr>
