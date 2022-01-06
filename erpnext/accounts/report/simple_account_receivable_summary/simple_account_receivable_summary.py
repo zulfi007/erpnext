@@ -35,6 +35,7 @@ class ReceivableSummaryReport():
 					.on(customerTable.name == kpi.parent)
 					.select(customerTable.star,kpi.last_payment_amount,kpi.last_payment_date,
 							kpi.last_invoice_date,kpi.last_invoice_amount)
+					.limit(1)
 		)
 
 		query = (frappe.qb.from_(gl) 
@@ -59,25 +60,6 @@ class ReceivableSummaryReport():
 			query=query.where(customer.primary_address.like('%'+str(filters.address)+'%'))
 		if filters.min_balance is not None :
 			query=query.having((debit-credit)>filters.min_balance)
-
-		# credit_case = frappe.qb.terms.Case().when(gl.voucher_type == "Payment Entry", gl.credit).else_(0)
-
-
-		# last_payments_dates= (frappe.qb.from_(gl)
-		# 			.select(gl.party,Max(gl.creation).as_('max_payment_date'))
-		# 			.where(credit_case>0)
-		# 			.groupby(gl.party)
-		# 			)
-		
-		# last_payments= (frappe.qb.from_(gl)
-		# 				.select(gl.party,gl.creation.as_('last_payment_date'),credit_case.as_('last_payment_amount'))
-		# 				.inner_join(last_payments_dates)
-		# 				.on(gl.party==last_payments_dates.party & gl.creation==last_payments_dates.max_payment_date)
-		# 			)
-
-		# query=query.join(last_payments).on(gl.party==last_payments.party)
-		# query=query.select(last_payments.last_payment_date, last_payments.last_payment_amount)
-
 
 		data=query.run(as_dict=True)
 
