@@ -35,7 +35,7 @@ class ReceivableSummaryReport():
 					.on(customerTable.name == kpi.parent)
 					.select(customerTable.star,kpi.last_payment_amount,kpi.last_payment_date,
 							kpi.last_invoice_date,kpi.last_invoice_amount)
-					.limit(1)
+					.groupby(customerTable.name)
 		)
 
 		query = (frappe.qb.from_(gl) 
