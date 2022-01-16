@@ -197,7 +197,7 @@ class CollectionReport():
 def get_report_content():
 
 	report = frappe.get_doc('Report', 'Day End Summary')
-	filters= {"report_date":'2021-12-28'}
+	filters= {"report_date":today()}
 	columns, data = report.get_data(filters = filters, as_dict=True, ignore_prepared_report=True)
 	
 	if data is None or len(data)==0 :
@@ -246,7 +246,7 @@ def get_html_table(columns=None, data=None):
 	})
 
 def send():
-	email_to='zulfiqarawan@gmail.com'
+	email_to='alwahabs@gmail.com'
 	data = get_report_content()
 	if not data:
 		return
