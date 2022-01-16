@@ -4,11 +4,14 @@
 from __future__ import unicode_literals
 import frappe
 from frappe import _, scrub
-from frappe.utils import flt, cint
+from frappe.utils import (today, get_link_to_form, get_url_to_report, global_date_format, now,
+						format_time,flt)
 from six import iteritems
-from frappe.query_builder.functions import Sum
+from frappe.query_builder.functions import Sum, Concat
 from functools import reduce
 from itertools import accumulate
+import string
+import random
 
 
 def execute(filters=None):
@@ -47,7 +50,11 @@ class CollectionReport():
 					.where(pEntry.posting_date == filters.report_date)
 					.where(pEntry.payment_type == 'Receive')
 					.where(pEntry.party_type== 'Customer')
-					.groupby(pEntry.sales_person)).run(as_dict=True)		
+					.groupby(pEntry.sales_person)).run(as_dict=True)
+		payments= (frappe.qb.from_(pEntry)
+					.select(pEntry.party_type.as_('account'), pEntry.paid_amount.as_("expense_amount"))
+					.where(pEntry.posting_date == filters.report_date)
+					.where(pEntry.paid_to=='Creditors - AT')).run(as_dict=True)		
 
 		if collections is not None and collections:
 			list=map(lambda value: value.paid_amount,collections)
@@ -55,9 +62,13 @@ class CollectionReport():
 		if expenses is not None and expenses:
 			list=map(lambda value: value.expense_amount,expenses)
 			self.total_expenses=reduce(lambda total,value: total+value,list)
+		if payments is not None and payments:
+			list=map(lambda value: value.expense_amount,expenses)
+			self.total_payments=reduce(lambda total,value: total+value,list)
 
 		if collections: self.data.extend(collections)
 		if expenses: self.data.extend(expenses)	
+		if payments: self.data.extend(payments)	
 
 	
 	def get_chart(self, filters):		
@@ -102,6 +113,7 @@ class CollectionReport():
 			'today_collection':self.total_paid,
 			'today_expenses':self.total_expenses,
 			'today_sales':self.total_sales,
+			'total_supplier_payment': self.total_payments,
 			'account_receivable':self.acc_receivable
 			}
 
@@ -180,3 +192,72 @@ class CollectionReport():
 		},
 		
 		]
+
+
+def get_report_content():
+
+	report = frappe.get_doc('Report', 'Day End Summary')
+	filters= {"report_date":'2021-12-28'}
+	columns, data = report.get_data(filters = filters, as_dict=True, ignore_prepared_report=True)
+	
+	if data is None or len(data)==0 :
+		return None
+	# columns, data = make_links(columns, data)
+	# columns = update_field_types(columns)
+	return get_html_table(columns, data)
+
+
+def make_links(columns, data):
+	for row in data:
+		doc_name = row.get('name')
+		for col in columns:
+			if not row.get(col.fieldname):
+				continue			
+			if col.fieldtype == "Link":
+				if col.options and col.options != "Currency":
+					row[col.fieldname] = get_link_to_form(col.options, row[col.fieldname])
+			elif col.fieldtype == "Dynamic Link":
+				if col.options and row.get(col.options):
+					row[col.fieldname] = get_link_to_form(row[col.options], row[col.fieldname])
+			elif col.fieldtype == "Currency":
+				doc = frappe.get_doc(col.parent, doc_name) if doc_name and col.parent else None
+				# Pass the Document to get the currency based on docfield option
+				row[col.fieldname] = frappe.format_value(row[col.fieldname], col, doc=doc)
+	return columns, data
+def update_field_types(columns):
+	for col in columns:
+		if col.fieldtype in  ("Link", "Dynamic Link", "Currency")  and col.options != "Currency":
+			col.fieldtype = "Data"
+			col.options = ""
+	return columns
+def get_html_table(columns=None, data=None):
+	date_time = global_date_format(now()) + ' ' + format_time(now())
+	report='Day End Summary'
+
+	totals= data[-1]["totals"]
+
+	return frappe.render_template('erpnext/accounts/report/day_end_summary/day_end_summary2.html', {
+		'title': 'Day End Summary Report',
+		'date_time': date_time,
+		'columns': columns,
+		'data': data,
+		'report_name': report,
+		'totals': totals
+	})
+
+def send():
+	email_to='zulfiqarawan@gmail.com'
+	data = get_report_content()
+	if not data:
+		return
+
+	attachments = None
+	message = data
+
+	frappe.sendmail(
+		recipients = email_to.split(),
+		subject = 'Day End Summary Report',
+		message = message,
+		attachments = attachments,
+		reference_name = 'Day End Summary'
+	)
