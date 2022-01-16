@@ -35,6 +35,11 @@ class CollectionReport():
 		paid_amount = 	Sum(pEntry.paid_amount).as_("paid_amount")
 		self.total_paid	=	0
 		self.total_expenses=0
+		self.cash_in_hand =0
+		self.bank_in_hand=0
+		self.total_sales=0
+		self.total_payments=0
+		self.acc_receivable=0
 
 		expenses = frappe.qb.from_(journal) \
 			.select(accounts.account,accounts.party,accounts.user_remark,accounts.debit.as_("expense_amount")) \

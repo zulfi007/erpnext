@@ -9,7 +9,7 @@
 </style>
 	<p class="text-right text-muted">{{ _("Printed On ") }}  {{ frappe.format_date(frappe.utils.today(),'dd-MM-YYYY')  }}</p>
 	<div class="container">
-		<div class="row" style="">
+		<div class="row">
 		  <div class="col-sm-6">
 			  <table class="table  table-bordered table-sm table-responsive">
 	<thead class="table-success">
@@ -80,7 +80,7 @@
   </table>
 		  </div> 
 	<div class="container" style="border: 1px dashed rgb(66, 133, 244);">
-	<div class="row" style="">
+	<div class="row" >
 	  <div class="col-sm-4">Total Cash in hand</div>
 	  <div class="col-sm-2 col-5"><h4>{{totals["cash_in_hand"]|string }}</h4></div>
 	  <div class="col-sm-4">Bank</div>
