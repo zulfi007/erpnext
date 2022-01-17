@@ -63,13 +63,13 @@ class CollectionReport():
 
 		if collections is not None and collections:
 			list=map(lambda value: value.paid_amount,collections)
-			self.total_paid=reduce(lambda total,value: total+value,list)
+			self.total_paid=reduce(lambda total,value: total+value,list,0)
 		if expenses is not None and expenses:
 			list=map(lambda value: value.expense_amount,expenses)
-			self.total_expenses=reduce(lambda total,value: total+value,list)
+			self.total_expenses=reduce(lambda total,value: total+value,list,0)
 		if payments is not None and payments:
 			list=map(lambda value: value.expense_amount,expenses)
-			self.total_payments=reduce(lambda total,value: total+value,list)
+			self.total_payments=reduce(lambda total,value: total+value,list,0)
 
 		if collections: self.data.extend(collections)
 		if expenses: self.data.extend(expenses)	
