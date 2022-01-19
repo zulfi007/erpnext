@@ -47,6 +47,7 @@
 		<thead>
 			<tr>
 						<th style="width: 14%">{%= __("Expense Head") %}</th>
+						<th style="width: 14%">{%= __("Detail") %}</th>
 						<th style="width: 24%">{%= __("Amount") %}</th>
 					
 			</tr>
@@ -56,9 +57,10 @@
 				{% if(data[i]["account"]) { %}
 					<tr>
 
-							<td style="text-align: left">{%=
-								data[i]["account"] +(data[i]["party"]?" : "+data[i]["party"]:"") +(data[i]["user_remark"]?" : "+data[i]["user_remark"]:"")
-								%}</td>
+							<td style="text-align: left">{%=data[i]["account"]%}</td>
+							<td style="text-align: left">
+								{% data[i]["party"]? data[i]["party"]:"" %} : {% data[i]["user_remark"]? data[i]["user_remark"]:"" %}
+							</td>
 							<td style="text-align: right">{%= data[i]["expense_amount"] %}</td>						
 					</tr>
 				{%	} %}

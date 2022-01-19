@@ -33,6 +33,8 @@ class CollectionReport():
 		journal 	= 	frappe.qb.DocType('Journal Entry')
 		accounts 	= 	frappe.qb.DocType('Journal Entry Account')
 		paid_amount = 	Sum(pEntry.paid_amount).as_("paid_amount")
+		account_details= Concat(accounts.party,":",accounts.user_remark).as_("account_details")
+		payment_details= Concat(pEntry.party,":",pEntry.remarks).as_("account_details")
 		self.total_paid	=	0
 		self.total_expenses=0
 		self.cash_in_hand =0
@@ -42,7 +44,7 @@ class CollectionReport():
 		self.acc_receivable=0
 
 		expenses = frappe.qb.from_(journal) \
-			.select(accounts.account,accounts.party,accounts.user_remark,accounts.debit.as_("expense_amount")) \
+			.select(accounts.account,accounts.party,accounts.user_remark,accounts.debit.as_("expense_amount"), account_details) \
 			.join(accounts) \
 			.on(journal.name == accounts.parent) \
 			.where(journal.posting_date==filters.report_date) \
@@ -57,7 +59,9 @@ class CollectionReport():
 					.where(pEntry.party_type== 'Customer')
 					.groupby(pEntry.sales_person)).run(as_dict=True)
 		payments= (frappe.qb.from_(pEntry)
-					.select(pEntry.party_type.as_('account'), pEntry.paid_amount.as_("expense_amount"))
+					.select(pEntry.party_type.as_('account'),pEntry.party,
+						pEntry.remarks, payment_details,
+						pEntry.paid_amount.as_("expense_amount"))
 					.where(pEntry.posting_date == filters.report_date)
 					.where(pEntry.paid_to=='Creditors - AT')).run(as_dict=True)		
 
@@ -185,7 +189,13 @@ class CollectionReport():
 		},
 		{
 		    "fieldname": "account",
-		    "label": _("Expense Accounts"),
+		    "label": _("Expense Head"),
+		    "fieldtype": "Data",
+		    "width": 200
+		},
+		{
+		    "fieldname": "account_details",
+		    "label": _("Expense Details"),
 		    "fieldtype": "Data",
 		    "width": 300
 		},
