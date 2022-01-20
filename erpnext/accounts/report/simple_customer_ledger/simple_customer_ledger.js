@@ -33,13 +33,14 @@ frappe.query_reports["Simple Customer Ledger"] = {
 	"formatter": function(value, row, column, data, default_formatter) {
 	
 		value = default_formatter(value, row, column, data);
-		if(data.voucher_no && data.voucher_no.toUpperCase().includes('SR-')){
+		console.log(data)
+		if(data && data.hasOwnProperty('voucher_no') && data.voucher_no.toUpperCase().includes('SR-')){
 		    value = '<b style="color: green;">'+value+'</b>';
 		}
-		if(data.voucher_no && data.voucher_no.toUpperCase().includes('JV-')){
+		if(data && data.voucher_no && data.voucher_no.toUpperCase().includes('JV-')){
 		    value = '<b style="color: red;">'+value+'</b>';
 		}
-		else if(data.debit > 0){
+		else if(data && data.debit > 0){
 		    value = '<b style="color: blue;">'+value+'</b>';
 		}
 		

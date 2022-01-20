@@ -97,7 +97,7 @@ class SimpleCustomerLedger():
 		ranges=self.calculate_ranges(invoices,data[0])
 		data.append(ranges)
 
-		self.data=data
+		self.data=self.sanatize(data)
 	
 	def calculate_ranges(self, invoices,op):	
 		# invoices.append({'posting_date': op.posting_date,'outstanding_amount':op.balance})
@@ -115,7 +115,18 @@ class SimpleCustomerLedger():
 		out5=reduce(lambda t,v: t+v   ,map(lambda x: x['outstanding_amount'],range5),0)
 		out6=reduce(lambda t,v: t+v   ,map(lambda x: x['outstanding_amount'],range6),0)
 		return {'range1':out1, 'range2':out2, 'range3': out3, 'range4': out4, 'range5': out5, 'range6':out6}
-		
+	
+	def sanatize(self, data):
+		new_data=[]
+		for d in data:
+			if hasattr(d, 'debit') and d.debit==0:
+				d.debit=''
+			if hasattr(d, 'credit') and d.credit==0:
+				d.credit=''
+			if hasattr(d, 'misc_credit') and d.misc_credit==0:
+				d.misc_credit=''
+			new_data.append(d)
+		return new_data
 
 	def get_summary(self,filters):
 		self.summary = []
@@ -149,9 +160,9 @@ class SimpleCustomerLedger():
 			{
 				'fieldname': 'weight',
 				'label': _('wt'),
-				'fieldtype': 'Float',
+				'fieldtype': 'Data',
 				'width': 60,
-				'precision':1
+				'precision':2
 			},
 			{
 				'fieldname': 'age',
@@ -191,6 +202,6 @@ class SimpleCustomerLedger():
 				'label': _('Balance'),
 				'fieldtype': 'Data',
 				'align': 'right',
-				'width': 150
+				'width': 150,
 			},
 		]
