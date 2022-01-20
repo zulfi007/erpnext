@@ -97,7 +97,7 @@ class SimpleCustomerLedger():
 		ranges=self.calculate_ranges(invoices,data[0])
 		data.append(ranges)
 
-		self.data=self.sanatize(data)
+		self.data=data
 	
 	def calculate_ranges(self, invoices,op):	
 		# invoices.append({'posting_date': op.posting_date,'outstanding_amount':op.balance})
