@@ -33,7 +33,6 @@ frappe.query_reports["Simple Customer Ledger"] = {
 	"formatter": function(value, row, column, data, default_formatter) {
 	
 		value = default_formatter(value, row, column, data);
-		console.log(data)
 		if(data && data.hasOwnProperty('voucher_no') && data.voucher_no.toUpperCase().includes('SR-')){
 		    value = '<b style="color: green;">'+value+'</b>';
 		}

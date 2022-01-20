@@ -72,9 +72,9 @@
 		<tfoot style="background-color: gainsboro; font-size:1.4rem; font-weight:bold">
 			<td colspan="4"></td>
 			<td style="text-align: center;">{%= data.filter(f=> f.hasOwnProperty('weight')).map(i=> i["weight"]).reduce((v,t)=>v+t,0) %}</td>
-			<td style="text-align: center;">{%= format_currency(data.filter(f=> f.hasOwnProperty('debit')).map(i=> i["debit"]).reduce((v,t)=>v+t,0), data[0]["currency"]) %}</td>
-			<td style="text-align: center;">{%= format_currency(data.filter(f=> f.hasOwnProperty('credit')).map(i=> i["credit"]).reduce((v,t)=>v+t,0),data[0]["currency"]) %}</td>
-			<td style="text-align: center;">{%= data.filter(f=> f.hasOwnProperty('misc_credit')).map(i=> i["misc_credit"]).reduce((v,t)=>v+t,0) %}</td>
+			<td style="text-align: center;">{%= format_currency(data.filter(f=> f.hasOwnProperty('debit')).map(i=> i["debit"]).reduce((v,t)=>v + Math.ceil(t*100)/100,0), data[0]["currency"]) %}</td>
+			<td style="text-align: center;">{%= format_currency(data.filter(f=> f.hasOwnProperty('credit')).map(i=> i["credit"]).reduce((v,t)=>v+ Math.ceil(t*100)/100,0),data[0]["currency"]) %}</td>
+			<td style="text-align: center;">{%= data.filter(f=> f.hasOwnProperty('misc_credit')).map(i=> i["misc_credit"]).reduce((v,t)=>v+ Math.ceil(t*100)/100,0) %}</td>
 			<td style="text-align: right;"></td>
 		</tfoot>
 	</table>
