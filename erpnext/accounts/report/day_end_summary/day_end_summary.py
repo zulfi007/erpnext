@@ -57,6 +57,7 @@ class CollectionReport():
 					.where(pEntry.posting_date == filters.report_date)
 					.where(pEntry.payment_type == 'Receive')
 					.where(pEntry.party_type== 'Customer')
+					.where(pEntry.cancelled==0)
 					.groupby(pEntry.sales_person)).run(as_dict=True)
 		payments= (frappe.qb.from_(pEntry)
 					.select(pEntry.party_type.as_('account'),pEntry.party,

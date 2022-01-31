@@ -4,11 +4,14 @@
 from __future__ import unicode_literals
 import frappe
 from frappe import _, scrub
-from frappe.utils import flt, cint
+from frappe.utils import flt, cint,getdate
 from six import iteritems
 from frappe.query_builder.functions import Sum,Max
+from pypika import AliasedQuery
 from functools import reduce
 from itertools import accumulate, groupby
+
+from soupsieve import select
 
 
 def execute(filters=None):
@@ -27,6 +30,7 @@ class ReceivableSummaryReport():
 		self.data=[]
 		gl	= 	frappe.qb.DocType('GL Entry')
 		customerTable	= 	frappe.qb.DocType('Customer')
+		invoiceTable = frappe.qb.DocType('Sales Invoice')
 		kpi	= frappe.qb.DocType('Customer KPI')
 		debit = 	Sum(gl.debit).as_("debit")
 		credit = 	Sum(gl.credit).as_("credit")
@@ -38,17 +42,37 @@ class ReceivableSummaryReport():
 					.groupby(customerTable.name)
 		)
 
-		query = (frappe.qb.from_(gl) 
-			.left_join(customer)
-			.on( gl.party==customer.name)
-			.select(gl.party,(debit-credit).as_("balance"),customer.name,customer.primary_address,customer.sales_person,
-					customer.last_payment_amount, customer.last_payment_date,customer.last_invoice_amount,customer.last_invoice_date)
+		# invoices = (frappe.qb.from_(invoiceTable)
+		# 			.select(invoiceTable.customer_name,Sum(invoiceTable.outstanding_amount).as_("outstanding_amount"))
+		# 			.where(invoiceTable.docstatus==1)
+		# 			.where(invoiceTable.status=='Overdue')
+		# 			.where(invoiceTable.due_date < getdate())
+		# 			.groupby(invoiceTable.customer_name)
+		# 			)
+
+		query = (frappe.qb.from_(gl)
+
+			.select(gl.party,(debit-credit).as_("balance"))
 			.where(gl.party_type=='Customer')
 			.where(gl.docstatus==1)
 			.where(gl.is_cancelled==0)
 			.groupby(gl.party)
 			.orderby(gl.party)
 		)
+
+		cust=AliasedQuery("Cust")
+		query=(query.with_(customer,'Cust')
+			.left_join(cust)
+			.on(gl.party==AliasedQuery("Cust").customer_name)
+			.select(cust.customer_name,cust.primary_address,cust.sales_person,cust.last_payment_amount, cust.last_payment_date,cust.last_invoice_amount,cust.last_invoice_date)
+			)
+		
+		# Inv=AliasedQuery('Inv')
+
+		# query=(query.with_(invoices,'Inv')		
+		# 	.left_join(Inv)
+		# 	.on(gl.party==Inv.customer_name)
+		# 	.select(Inv.outstanding_amount))
 		
 		if filters.customer_name is not None :
 			query=query.where(gl.party==filters.customer_name)
