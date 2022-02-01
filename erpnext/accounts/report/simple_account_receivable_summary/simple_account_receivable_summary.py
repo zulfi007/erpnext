@@ -77,11 +77,11 @@ class ReceivableSummaryReport():
 		if filters.customer_name is not None :
 			query=query.where(gl.party==filters.customer_name)
 		if filters.territory is not None :
-			query=query.where(customer.territory==filters.territory)
+			query=query.where(AliasedQuery("Cust").territory==filters.territory)
 		if filters.sales_person is not None :
-			query=query.where(customer.sales_person==filters.sales_person)
+			query=query.where(AliasedQuery("Cust").sales_person==filters.sales_person)
 		if filters.address is not None :
-			query=query.where(customer.primary_address.like('%'+str(filters.address)+'%'))
+			query=query.where(AliasedQuery("Cust").primary_address.like('%'+str(filters.address)+'%'))
 		if filters.min_balance is not None :
 			query=query.having((debit-credit)>filters.min_balance)
 
