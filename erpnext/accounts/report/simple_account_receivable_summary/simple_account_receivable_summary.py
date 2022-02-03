@@ -87,7 +87,6 @@ class ReceivableSummaryReport():
 		if filters.min_balance is not None :
 			query=query.having((debit-credit)>filters.min_balance)
 
-		frappe.msgprint(query.get_sql())
 		data=query.run(as_dict=True)
 
 		self.total_balance=0
