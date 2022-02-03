@@ -42,6 +42,13 @@ class ReceivableSummaryReport():
 					.groupby(customerTable.name)
 		)
 
+		if filters.territory is not None :
+			customer=customer.where(customerTable.territory==filters.territory)
+		if filters.sales_person is not None :
+			customer=customer.where(customerTable.sales_person==filters.sales_person)
+		if filters.address is not None :
+			customer=customer.where(customerTable.primary_address.like('%'+str(filters.address)+'%'))
+
 		# invoices = (frappe.qb.from_(invoiceTable)
 		# 			.select(invoiceTable.customer_name,Sum(invoiceTable.outstanding_amount).as_("outstanding_amount"))
 		# 			.where(invoiceTable.docstatus==1)
@@ -62,7 +69,7 @@ class ReceivableSummaryReport():
 
 		cust=AliasedQuery("Cust")
 		query=(query.with_(customer,'Cust')
-			.left_join(cust)
+			.right_join(cust)
 			.on(gl.party==AliasedQuery("Cust").customer_name)
 			.select(cust.customer_name,cust.primary_address,cust.sales_person,cust.last_payment_amount, cust.last_payment_date,cust.last_invoice_amount,cust.last_invoice_date)
 			)
@@ -76,15 +83,11 @@ class ReceivableSummaryReport():
 		
 		if filters.customer_name is not None :
 			query=query.where(gl.party==filters.customer_name)
-		if filters.territory is not None :
-			query=query.where(AliasedQuery("Cust").territory==filters.territory)
-		if filters.sales_person is not None :
-			query=query.where(AliasedQuery("Cust").sales_person==filters.sales_person)
-		if filters.address is not None :
-			query=query.where(AliasedQuery("Cust").primary_address.like('%'+str(filters.address)+'%'))
+	
 		if filters.min_balance is not None :
 			query=query.having((debit-credit)>filters.min_balance)
 
+		frappe.msgprint(query.get_sql())
 		data=query.run(as_dict=True)
 
 		self.total_balance=0
