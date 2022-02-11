@@ -4,7 +4,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe import _, scrub
-from frappe.utils import flt, cint
+from frappe.utils import flt, cint, getdate
 from erpnext.accounts.party import get_partywise_advanced_payment_amount
 from erpnext.accounts.report.accounts_receivable.accounts_receivable import ReceivablePayableReport
 from six import iteritems
@@ -28,26 +28,23 @@ class AccountsReceivableSummary(ReceivablePayableReport):
 	def get_data(self, args):
 		self.data = []
 
-		self.receivables = ReceivablePayableReport(self.filters).run(args)[1]
-		
-		
+		self.receivables= ReceivablePayableReport(self.filters).run(args)[1]
+
 		self.get_party_total(args)
 
-		party_advance_amount = get_partywise_advanced_payment_amount(self.party_type,
-			self.filters.report_date, self.filters.show_future_payments, self.filters.company) or {}
-
 		for party, party_dict in iteritems(self.party_total):
-			# if party_dict.outstanding == 0:
-			# 	continue
+			if party_dict.over_due < 5:
+				continue
 
 			row = frappe._dict()
 
 			row.party = party
+
+
 			if self.party_naming_by == "Naming Series":
 				row.party_name = frappe.get_cached_value(self.party_type, party, scrub(self.party_type) + "_name")
 
-			row.update(party_dict)
-
+			row.update(party_dict)		
 			self.data.append(row)
 
 	def get_party_total(self, args):
@@ -61,7 +58,8 @@ class AccountsReceivableSummary(ReceivablePayableReport):
 				if k not in ["currency", "sales_person","primary_address"]:
 					self.party_total[d.party][k] += d.get(k, 0.0)
 
-			# set territory, customer_group, sales person etc
+			due_date= d.due_date if d.due_date is  not None else getdate()
+			d.over_due=d.outstanding  if (getdate() - due_date).days >0 else 0
 			self.set_party_details(d)
 
 	def init_party_total(self, row):
@@ -75,7 +73,7 @@ class AccountsReceivableSummary(ReceivablePayableReport):
 			"range3": 0.0,
 			"range4": 0.0,
 			"range5": 0.0,
-			"total_due": 0.0,
+			"over_due": 0.0,
 			"sales_person": '',
 			"primary_address": '',
 		}))
@@ -93,6 +91,9 @@ class AccountsReceivableSummary(ReceivablePayableReport):
 		if row.primary_address:
 			self.party_total[row.party].primary_address =row.primary_address
 
+		if row.over_due:
+			self.party_total[row.party].over_due =row.over_due
+
 	def get_columns(self):
 		self.columns = []
 		self.add_column(label=_(self.party_type), fieldname='party',
@@ -107,7 +108,7 @@ class AccountsReceivableSummary(ReceivablePayableReport):
 		self.add_column(_('Invoiced Amount'), fieldname='invoiced')
 		self.add_column(_('Balance'), fieldname='outstanding')
 				# Add column for total due amount
-		self.add_column(label="Over Due", fieldname='total_due')
+		self.add_column(label="Over Due", fieldname='over_due')
 
 		
 		if self.filters.show_aging_columns:
