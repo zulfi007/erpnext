@@ -74,7 +74,7 @@ class SimpleCustomerLedger():
 		
 		invoices= frappe.db.get_list('Sales Invoice',
 			filters={'name': ['in', list( dict.fromkeys(list1) )]},
-			fields=['name', 'status','(clearance_date-posting_date) as age','total_net_weight','outstanding_amount','due_date','posting_date']
+			fields=['name', 'status','clearance_date','total_net_weight','outstanding_amount','due_date','posting_date']
 			)
 		invoice_list = {i.name: i for i in invoices}
 		data = []
@@ -86,9 +86,11 @@ class SimpleCustomerLedger():
 			# add the invoice status and aging
 			if ele.voucher_type=='Sales Invoice':
 				ele.status=invoice_list[ele.against_voucher].status
-				ele.age=invoice_list[ele.against_voucher].age
 				ele.weight=invoice_list[ele.against_voucher].total_net_weight
 				ele.weight =  None if ele.weight ==0 else ele.weight
+				if invoice_list[ele.against_voucher].clearance_date is not None:
+					delta=invoice_list[ele.against_voucher].clearance_date - invoice_list[ele.against_voucher].posting_date
+					ele.age=delta.days
 		
 			data.append(ele)
 		

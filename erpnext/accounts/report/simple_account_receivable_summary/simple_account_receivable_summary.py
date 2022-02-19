@@ -38,7 +38,7 @@ class ReceivableSummaryReport():
 					.left_join(kpi)
 					.on(customerTable.name == kpi.parent)
 					.select(customerTable.star,kpi.last_payment_amount,kpi.last_payment_date,
-							kpi.last_invoice_date,kpi.last_invoice_amount)
+							kpi.last_invoice_date,kpi.last_invoice_amount,kpi.overdue_amount)
 					.groupby(customerTable.name)
 		)
 
@@ -71,7 +71,7 @@ class ReceivableSummaryReport():
 		query=(query.with_(customer,'Cust')
 			.right_join(cust)
 			.on(gl.party==AliasedQuery("Cust").customer_name)
-			.select(cust.customer_name,cust.primary_address,cust.sales_person,cust.last_payment_amount, cust.last_payment_date,cust.last_invoice_amount,cust.last_invoice_date)
+			.select(cust.customer_name,cust.primary_address,cust.sales_person,cust.last_payment_amount, cust.last_payment_date,cust.last_invoice_amount,cust.last_invoice_date, cust.overdue_amount)
 			)
 		
 		# Inv=AliasedQuery('Inv')
@@ -166,10 +166,18 @@ class ReceivableSummaryReport():
 				'width': 59
 			},
 			{
+				'fieldname': 'overdue_amount',
+				'label': _('Overdue'),
+				'fieldtype': 'Data',
+				'align': 'left',
+				'width': 159
+			},
+			{
 				'fieldname': 'balance',
 				'label': _('Balance'),
 				'fieldtype': 'Float',
 				'align': 'right',
-				'width': 150
+				'width': 150,
+				'precision': 1
 			},
 		]
