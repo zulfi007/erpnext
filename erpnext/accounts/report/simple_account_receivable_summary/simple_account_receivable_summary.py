@@ -71,7 +71,7 @@ class ReceivableSummaryReport():
 		query=(query.with_(customer,'Cust')
 			.right_join(cust)
 			.on(gl.party==AliasedQuery("Cust").customer_name)
-			.select(cust.customer_name,cust.primary_address,cust.sales_person,cust.last_payment_amount, cust.last_payment_date,cust.last_invoice_amount,cust.last_invoice_date, cust.overdue_amount)
+			.select(cust.customer_name,cust.primary_address,cust.sales_person,cust.last_payment_amount, cust.last_payment_date,cust.last_invoice_amount,cust.last_invoice_date, cust.overdue_amount,cust.territory)
 			)
 		
 		# Inv=AliasedQuery('Inv')
@@ -137,11 +137,25 @@ class ReceivableSummaryReport():
 				'width': 150,
 				'align': 'left'
 			},
-				{
+			{
+				'fieldname': 'territory',
+				'label': _('Territory'),
+				'fieldtype': 'Data',
+				'width': 80,
+				'align': 'center'
+			},
+			{
+				'fieldname': 'sales_person',
+				'label': _('Agent'),
+				'fieldtype': 'Data',
+				'width': 80,
+				'align': 'left'
+			},
+			{
 				'fieldname': 'last_payment_date',
 				'label': _('Last Payment Date'),
 				'fieldtype': 'Data',
-				'width': 59,
+				'width': 90,
 
 			},
 			{
@@ -149,35 +163,35 @@ class ReceivableSummaryReport():
 				'label': _('Last Payment Amout'),
 				'fieldtype': 'Data',
 				'align': 'right',
-				'width': 59
+				'width': 80
 			},
 			{
 				'fieldname': 'last_invoice_date',
 				'label': _('Last Invoice Date'),
 				'fieldtype': 'Data',
 				'align': 'right',
-				'width': 59
+				'width': 90
 			},
 			{
 				'fieldname': 'last_invoice_amount',
 				'label': _('Last Invoice Amount'),
 				'fieldtype': 'Data',
 				'align': 'right',
-				'width': 59
+				'width': 80
 			},
 			{
 				'fieldname': 'overdue_amount',
 				'label': _('Overdue'),
 				'fieldtype': 'Data',
 				'align': 'left',
-				'width': 159
+				'width': 120
 			},
 			{
 				'fieldname': 'balance',
 				'label': _('Balance'),
 				'fieldtype': 'Float',
 				'align': 'right',
-				'width': 150,
+				'width': 140,
 				'precision': 1
 			},
 		]
