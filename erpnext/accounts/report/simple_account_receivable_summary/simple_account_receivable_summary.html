@@ -1,6 +1,6 @@
 <style>
 	.print-format {
-		padding: 3mm;
+		padding: 5px 10px 5px 5px;
 		font-size: 7.0pt !important;
 	}
 	.print-format td {
@@ -33,24 +33,22 @@
 			<tr>
 				<th width="15%">{%= __("Customer Name") %}</th>
 				<th width="20%" >{%= __("Address") %} </th>
-				<th width="8%">{%= __("Last Invoice ") %}</th>
-				<th width="8%">{%= __("Last Invoice") %}</th>
-				<th width="8%">{%= __("Last Payment ") %}</th>
-				<th width="8%">{%= __("Last Payment") %}</th>
-				<th width="13%">{%= __("Overdue") %}</th>
+				<th width="10%" colspan="2">{%= __("Last Invoice") %}</th>
+				<th width="10%" colspan="2">{%= __("Last Payment") %}</th>
+				<th width="10%">{%= __("Overdue") %}</th>
 				<th width="13%">{%= __("Total Balance") %}</th>
 				<th width="4%">{%= __("Code") %}</th>
-				<th width="5%">{%= __("...") %}</th>
+				<th width="10%">{%= __("...") %}</th>
 
 			</tr>
 		</thead>
 		<tbody style="font-size: 1rem; white-space:nowrap;">
 			{% for(var i=0, l=data.length; i<l; i++) { %}
 				<tr style="text-align: left; max-width: 90%">
-					<td style="text-align: left">
+					<td style="text-align: left" width="15%">
 						{%= data[i]["party"]?data[i]["party"].split("-",2)[1]:"" %}	 
 					</td>					
-					<td style="max-width:30px;text-overflow:ellipsis; overflow: hidden;">{%= data[i]["primary_address"]?
+					<td width="20%" style="max-width:30px;text-overflow:ellipsis; overflow: hidden;">{%= data[i]["primary_address"]?
 						data[i]["primary_address"].replaceAll("<br>"," ").replace("Pakistan",""):
 						"" %}
 					</td>
