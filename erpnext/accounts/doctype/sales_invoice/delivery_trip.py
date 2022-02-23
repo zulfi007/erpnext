@@ -53,7 +53,7 @@ def update_sales_order_delivery_status(source,status,is_delete=False):
 	for i in ilist:
 		so_details=frappe.db.get_value('Sales Order Item', i.so_detail,['item_code', 'stock_qty','parent'] ,as_dict=True )
 		if so_details is not None and (so_details.stock_qty - i.stock_qty)>0 and status =='Delivered':
-			status='Partially Delivered'
+			status='Partly Delivered'
 		elif so_details is not None and (so_details.stock_qty - i.stock_qty)==0 and status =='Delivered':
 			status='Fully Delivered'
 	
@@ -63,7 +63,7 @@ def update_sales_order_delivery_status(source,status,is_delete=False):
 		m_status='To Deliver'
 	elif "In Transit" in status:
 		m_status='To Deliver'
-	elif 'Partially Delivered' in status:
+	elif 'Partly Delivered' in status:
 		m_status='Completed'
 	elif 'Fully Delivered' in status:
 		m_status='Completed'
