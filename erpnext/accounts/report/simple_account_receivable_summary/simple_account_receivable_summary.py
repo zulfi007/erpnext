@@ -39,6 +39,7 @@ class ReceivableSummaryReport():
 					.on(customerTable.name == kpi.parent)
 					.select(customerTable.star,kpi.last_payment_amount,kpi.last_payment_date,
 							kpi.last_invoice_date,kpi.last_invoice_amount,kpi.overdue_amount)
+					.where(customerTable.disabled==0)
 					.groupby(customerTable.name)
 		)
 
@@ -86,7 +87,6 @@ class ReceivableSummaryReport():
 	
 		if filters.min_balance is not None :
 			query=query.having((debit-credit)>filters.min_balance)
-
 		data=query.run(as_dict=True)
 
 		self.total_balance=0
