@@ -21,6 +21,8 @@ class AccountsReceivableSummary(ReceivablePayableReport):
 	def run(self, args):
 		self.party_type = args.get('party_type')
 		self.party_naming_by = frappe.db.get_value(args.get("naming_by")[0], None, args.get("naming_by")[1])
+		self.filters.ageing_based_on = "Due Date"
+
 		self.get_columns()
 		self.get_data(args)
 		return self.columns, self.data
@@ -33,18 +35,18 @@ class AccountsReceivableSummary(ReceivablePayableReport):
 		self.get_party_total(args)
 
 		for party, party_dict in iteritems(self.party_total):
-			if party_dict.over_due < 5:
+			if party_dict.over_due < 500:
 				continue
 
 			row = frappe._dict()
 
 			row.party = party
 
-
 			if self.party_naming_by == "Naming Series":
 				row.party_name = frappe.get_cached_value(self.party_type, party, scrub(self.party_type) + "_name")
 
 			row.update(party_dict)		
+
 			self.data.append(row)
 
 	def get_party_total(self, args):
@@ -55,9 +57,8 @@ class AccountsReceivableSummary(ReceivablePayableReport):
 
 			# Add all amount columns
 			for k in list(self.party_total[d.party]):
-				if k not in ["currency", "sales_person","primary_address"]:
+				if k not in ["currency", "sales_person","primary_address","due_date"]:
 					self.party_total[d.party][k] += d.get(k, 0.0)
-
 			due_date= d.due_date if d.due_date is  not None else getdate()
 			d.over_due=d.outstanding  if (getdate() - due_date).days >0 else 0
 			self.set_party_details(d)
@@ -76,6 +77,7 @@ class AccountsReceivableSummary(ReceivablePayableReport):
 			"over_due": 0.0,
 			"sales_person": '',
 			"primary_address": '',
+			"due_date": getdate()
 		}))
 
 	def set_party_details(self, row):
@@ -92,27 +94,27 @@ class AccountsReceivableSummary(ReceivablePayableReport):
 			self.party_total[row.party].primary_address =row.primary_address
 
 		if row.over_due:
-			self.party_total[row.party].over_due =row.over_due
+			self.party_total[row.party].over_due +=row.over_due
 
 	def get_columns(self):
 		self.columns = []
 		self.add_column(label=_(self.party_type), fieldname='party',
-			fieldtype='Link', options=self.party_type, width=250)
+			fieldtype='Link', options=self.party_type, width=200)
 		self.add_column(label="Address", fieldname='primary_address', 
-			fieldtype='Link', options='Address', width=260)
+			fieldtype='Link', options='Address', width=160)
 
 		self.add_column(label=_('Territory'), fieldname='territory', 
 			fieldtype='Link', options='Territory',  width=80)
 
-		self.add_column(label=_('Sales Person'), fieldname='sales_person', fieldtype='Data')
-		self.add_column(_('Invoiced Amount'), fieldname='invoiced')
-		self.add_column(_('Balance'), fieldname='outstanding')
-				# Add column for total due amount
-		self.add_column(label="Over Due", fieldname='over_due')
-
+		self.add_column(label=_('Sales Person'), fieldname='sales_person', 
+			fieldtype='Data', width=80)
 		
 		if self.filters.show_aging_columns:
 			self.setup_ageing_columns()
+
+		self.add_column(label="Total OverDue", fieldname='over_due')
+		self.add_column(_('Balance'), fieldname='outstanding')
+
 
 	def setup_ageing_columns(self):
 		for i, label in enumerate(["0-{range1}".format(range1=self.filters["range1"]),
@@ -120,6 +122,6 @@ class AccountsReceivableSummary(ReceivablePayableReport):
 			"{range2}-{range3}".format(range2=cint(self.filters["range2"])+ 1, range3=self.filters["range3"]),
 			"{range3}-{range4}".format(range3=cint(self.filters["range3"])+ 1, range4=self.filters["range4"]),
 			"{range4}-{above}".format(range4=cint(self.filters["range4"])+ 1, above=_("Above"))]):
-				self.add_column(label=label, fieldname='range' + str(i+1))
+				self.add_column(label=label, fieldname='range' + str(i+1),width=80)
 
 
