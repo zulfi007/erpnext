@@ -1,6 +1,7 @@
 <style>
 	.print-format {
-		padding: 5px 10px 5px 5px;
+		padding: 3px 10px 5px 5px;
+		margin-left: 0;
 		font-size: 7.0pt !important;
 	}
 	.print-format td {
@@ -14,19 +15,19 @@
 	<div class="container">
 	<div class="row">
 		{% if (filters.customer) { %}
-		<div class="col text-center font-weight-light"> 
+		<div class="col text-center font-weight-bold"> 
 			{{ __("Customer Name: ") }} {%= filters.customer_name %} 
 		</div>
 		{% } %}
 
 		{% if (filters.sales_person) { %}
-		<div 	class="col text-center font-weight-light"> 
+		<div 	class="col text-center font-weight-bold"> 
 			{{ __("Sales Person: ") }} {%= filters.sales_person %} 
 		</div>
 		{% }  %}			
 
 		{% if (filters.territory) { %}
-		<div 	class="col text-center font-weight-light"  style="width: 95%;"> 
+		<div 	class="col text-center font-weight-bold"  style="width: 95%;"> 
 			{{ __("Sector: ") }}	{%= filters.territory %} 
 		</div>
 		{% }  %}
@@ -45,31 +46,31 @@
 
 			</tr>
 		</thead>
-		<tbody style="font-size: 0.9rem; white-space:nowrap;">
+		<tbody style="font-size: 1rem; white-space:nowrap;">
 			{% for(var i=0, l=data.length; i<l; i++) { %}
 				<tr style="text-align: left;">
-					<td style="max-width: 120px; font-size: 0.9rem; text-overflow: clip; overflow: hidden; text-align: left;" >
+					<td style="max-width: 130px; font-size: 1rem; text-overflow: clip; overflow: hidden; text-align: left;" >
 						{%= data[i]["party"]?data[i]["party"].split("-",2)[1]:"" %}	 
 					</td>					
-					<td style="max-width: 100px; font-size: 0.6rem; text-overflow:ellipsis; overflow: hidden;">{%= data[i]["primary_address"]?
+					<td style="max-width: 85px; font-size: 0.8rem; text-overflow:ellipsis; overflow: hidden;">{%= data[i]["primary_address"]?
 						data[i]["primary_address"].replaceAll("<br>"," ").replace("Pakistan",""):
 						"" %}
 					</td>
-					<td style="max-width: 45px; font-size: 0.6rem; text-align: center">	
+					<td style="max-width: 45px; font-size: 0.7rem; text-align: center">	
 						{%= data[i]["last_invoice_date"] %}
 					</td>
-					<td  style="max-width: 41px; font-size: 0.6rem; text-align: center">	
+					<td  style="max-width: 41px; font-size: 0.7rem; text-align: center">	
 						{%= data[i]["last_invoice_amount"]!=0?data[i]["last_invoice_amount"]:'' %}
 					</td>
-					<td style="max-width: 45px; font-size: 0.6rem;  text-align: center">	
+					<td style="max-width: 45px; font-size: 0.7rem;  text-align: center">	
 						{%= data[i]["last_payment_date"] %}
 					</td>
-					<td  style="max-width: 41px; font-size: 0.6rem; text-align: center">	
+					<td  style="max-width: 41px; font-size: 0.7rem; text-align: center">	
 						{%= data[i]["last_payment_amount"]!=0?data[i]["last_payment_amount"]:'' %}
 					</td>
 
-					<td  style="max-width: 60px; text-align: center; font-size:1.1rem"">
-						{%= data[i]["overdue_amount"] %}
+					<td  style="max-width: 60px; text-align: center; font-size:1.1rem">
+						{%=format_currency(data[i]["overdue_amount"],data[i]["currency"],0)%}
 					</td>
 					
 					<td  style="max-width: 80px; text-align: center; font-size:1.1rem">

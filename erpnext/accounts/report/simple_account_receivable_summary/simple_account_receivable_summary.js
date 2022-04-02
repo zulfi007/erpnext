@@ -33,6 +33,7 @@ frappe.query_reports["Simple Account Receivable Summary"] = {
 		    	"fieldname":"min_balance",
 		    	"label": __("Skip Amount"),
 		    	"fieldtype": "Int",
+				"default":"5",
 		    	"reqd": 0
         	},
 			
