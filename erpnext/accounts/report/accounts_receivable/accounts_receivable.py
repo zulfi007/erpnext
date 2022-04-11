@@ -868,7 +868,7 @@ class ReceivablePayableReport(object):
 				self.party_details[party] = frappe.db.get_value(
 					"Customer",
 					party,
-					["customer_name", "territory", "customer_group", "customer_primary_contact"],
+					["customer_name", "territory", "customer_group", "customer_primary_contact","primary_address","sales_person"],
 					as_dict=True,
 				)
 			else:
