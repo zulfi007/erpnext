@@ -262,7 +262,7 @@ def get_html_table(columns=None, data=None):
 	})
 
 def send():
-	email_to='alwahabs@gmail.com'
+	email_to=['alwahabs@gmail.com','ankhan.1976@gmail.com']
 	data = get_report_content()
 	if not data:
 		return
@@ -271,7 +271,7 @@ def send():
 	message = data
 
 	frappe.sendmail(
-		recipients = email_to.split(),
+		recipients = email_to,
 		subject = 'Day End Summary Report',
 		message = message,
 		attachments = attachments,
