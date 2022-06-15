@@ -461,6 +461,9 @@ scheduler_events = {
 		"0/30 * * * *": [
 			"erpnext.utilities.doctype.video.video.update_youtube_data",
 		],
+		"30 18 * * 0-4,6": [
+			"erpnext.accounts.report.day_end_summary.day_end_summary.send"
+		],
 	},
 	"all": [
 		"erpnext.projects.doctype.project.project.project_status_update_reminder",
