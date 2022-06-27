@@ -151,14 +151,55 @@ class SellingController(StockController):
 				)
 			)
 
-		self.amount_eligible_for_commission = sum(
-			item.base_net_amount for item in self.items if item.grant_commission
-		)
+		commission_matrix = frappe.db.get_list('Sales Partner Commission',   
+			filters={'parent': self.sales_partner, 'parenttype':'Sales Partner'},
+			fields=['apply_on','applied_at','sub_criteria','sub_applied_at','rate']
+			)	
+		
+		total_commission=0.0
+		territory =  frappe.db.get_value('Customer',{'name': self.customer},['territory'])
 
+		for item in self.items:
+			if not item.grant_commission:
+				continue
+
+			item_wise = list(filter(lambda x: (x['applied_at'] == item.item_code and x['apply_on'] == 'Item'), commission_matrix))
+			brand_wise = list(filter(lambda x: (x['applied_at'] == item.brand and x['apply_on'] == 'Brand'), commission_matrix))
+			item_group_wise = list(
+				filter(lambda x: (x['applied_at'] == item.item_group and x['apply_on'] == 'Item Group'), commission_matrix))
+			territory_wise = list(
+				filter(lambda x: (x['applied_at'] == territory and x['apply_on'] == 'Territory'), commission_matrix))
+
+			if len(item_wise) > 0:
+				total_commission = total_commission + (item.base_net_amount * item_wise[0]['rate'] / 100.0)
+			elif len(brand_wise) > 0:
+				total_commission = total_commission + (item.base_net_amount * brand_wise[0]['rate'] / 100.0)
+			elif len(item_group_wise) > 0:
+				total_commission = total_commission + (item.base_net_amount * item_group_wise[0]['rate'] / 100.0)
+			elif len(territory_wise) > 0:
+				for within in territory_wise:
+					if within.sub_criteria == None or not within.sub_criteria:
+						total_commission = total_commission + (item.base_net_amount * within.rate / 100.0)
+					elif within.sub_criteria == 'Brand' and within.sub_applied_at ==item.brand:
+						total_commission  = total_commission + (item.base_net_amount * within.rate / 100.0)
+					elif within.sub_criteria == 'Item' and within.sub_applied_at ==item.item_code:
+						total_commission = total_commission + (item.base_net_amount * within.rate / 100.0)
+			else:
+				total_commission= total_commission + (item.base_net_amount * self.commission_rate / 100.0)
+		
 		self.total_commission = flt(
-			self.amount_eligible_for_commission * self.commission_rate / 100.0,
+			total_commission,
 			self.precision("total_commission"),
 		)
+
+		# self.amount_eligible_for_commission = sum(
+		# 	item.base_net_amount for item in self.items if item.grant_commission
+		# )
+
+		# self.total_commission = flt(
+		# 	self.amount_eligible_for_commission * self.commission_rate / 100.0,
+		# 	self.precision("total_commission"),
+		# )
 
 	def calculate_contribution(self):
 		if not self.meta.get_field("sales_team"):

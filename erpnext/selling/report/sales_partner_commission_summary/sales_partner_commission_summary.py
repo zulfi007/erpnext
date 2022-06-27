@@ -2,8 +2,13 @@
 # For license information, please see license.txt
 
 
+import json
 import frappe
-from frappe import _, msgprint
+from frappe import _, msgprint, whitelist
+from frappe.query_builder import DocType
+from frappe.utils import today
+
+
 
 
 def execute(filters=None):
@@ -42,8 +47,18 @@ def get_columns(filters):
 			"fieldtype": "Link",
 			"width": 100,
 		},
-		{"label": _("Posting Date"), "fieldname": "posting_date", "fieldtype": "Date", "width": 100},
-		{"label": _("Amount"), "fieldname": "amount", "fieldtype": "Currency", "width": 120},
+		{
+			"label": _("Posting Date"), 
+			"fieldname": "posting_date", 
+			"fieldtype": "Date", 
+			"width": 100
+		},
+		{
+			"label": _("Amount"), 
+			"fieldname": "amount", 
+			"fieldtype": "Currency", 
+			"width": 120
+		},
 		{
 			"label": _("Sales Partner"),
 			"options": "Sales Partner",
@@ -52,17 +67,35 @@ def get_columns(filters):
 			"width": 140,
 		},
 		{
-			"label": _("Commission Rate %"),
-			"fieldname": "commission_rate",
-			"fieldtype": "Data",
-			"width": 100,
-		},
+			"label": _("%age Paid"),
+			"fieldname": "paid_percentage",
+			"fieldtype": "Percent",
+			"non_negative": 1,
+			"width": 120,
+
+		},	
 		{
 			"label": _("Total Commission"),
 			"fieldname": "total_commission",
 			"fieldtype": "Currency",
+			"non_negative": 1,
 			"width": 120,
 		},
+
+		{
+			"label": _("PaidOut Commission"),
+			"fieldname": "dispersed_commission",
+			"fieldtype": "Currency",
+			"width": 120,
+		},
+		{
+			"label": _("Outstanding Commission"),
+			"fieldname": "commission_outstanding",
+			"fieldtype": "Currency",
+			"width": 120,		
+		},
+
+
 	]
 
 	return columns
@@ -76,7 +109,8 @@ def get_entries(filters):
 		"""
 		SELECT
 			name, customer, territory, {0} as posting_date, base_net_total as amount,
-			sales_partner, commission_rate, total_commission
+			sales_partner, commission_rate, total_commission, dispersed_commission,  CEILING((1-outstanding_amount/base_net_total)*100) as paid_percentage,
+			(total_commission - dispersed_commission) as commission_outstanding
 		FROM
 			`tab{1}`
 		WHERE
@@ -88,7 +122,6 @@ def get_entries(filters):
 		filters,
 		as_dict=1,
 	)
-
 	return entries
 
 
@@ -109,3 +142,47 @@ def get_conditions(filters, date_field):
 		conditions += " and {0} <= %(to_date)s".format(date_field)
 
 	return conditions
+
+@whitelist()
+def allocate_sales_partner_commission(params):
+	# update the sales order and sales invoice 
+	# create salary incentive with reference
+
+	sales_invoice = DocType("Sales Invoice") 
+	sales_partner = DocType("Sales Partner")
+	employee_incentive = DocType("Employee Incentive")  
+	query =frappe.qb.update(sales_invoice)
+	items=json.loads(params)
+	total_incentive_amount = 0
+	
+	sales_partner=items[0]['sales_partner']
+
+	company =frappe.db.get_default("Company")
+	currency = frappe.db.get_value("Company", company, "default_currency", cache=True)
+	salary_component = frappe.db.get_value('Sales Partner',sales_partner,'commission_account')
+	employee=items[0]["employee"]
+	employee_name, department = frappe.db.get_value('Employee',employee,['employee_name','department'])
+	refs= {}
+
+	for item in items:
+		total_incentive_amount +=item['commission_outstanding']
+		refs.update({item['name']:item['commission_outstanding']})
+
+		query=	query.set(sales_invoice.dispersed_commission, item['commission_outstanding']) \
+				.where(sales_invoice.name == item['name'])
+		
+	query.run()
+	frappe.get_doc({
+		"doctype": "Employee Incentive",
+		"docstatus":0,
+		"company":company,
+		"currency":currency,
+		"employee":employee,
+		"employee_name": employee_name,
+		"department": department,
+		"salary_component":salary_component,
+		"payroll_date":today(),
+		"incentive_amount":total_incentive_amount,
+		"reference":json.dumps(refs)
+	}).insert()
+	frappe.msgprint(salary_component +" of "+currency+" "+ str(total_incentive_amount) +" has been Created for "+employee_name)
