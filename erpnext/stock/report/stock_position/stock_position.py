@@ -66,11 +66,16 @@ def execute(filters=None):
 				'reorder_level': item_reorder_level,
 				'reorder_qty': item_reorder_qty,
 			}
+			wt_per_unit=item_map[item]['weight_per_unit']
 
 			item_map[item]['weight_per_unit']=round(qty_dict['bal_qty'] * item_map[item]['weight_per_unit'],2)
+			
 
 			report_data.update(item_map[item])
 			report_data.update(qty_dict)
+
+			#resetting to original value
+			item_map[item]['weight_per_unit']=wt_per_unit
 
 			if include_uom:
 				conversion_factors.setdefault(item, item_map[item].conversion_factor)
