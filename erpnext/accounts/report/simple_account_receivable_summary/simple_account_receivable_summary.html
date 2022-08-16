@@ -2,6 +2,7 @@
 	.print-format {
 		padding: 3px 10px 5px 5px;
 		margin-left: 0;
+		margin-right: 0;
 		font-size: 7.0pt !important;
 	}
 	.print-format td {
@@ -57,19 +58,19 @@
 						"" %}
 					</td>
 					<td style="max-width: 45px; font-size: 0.7rem; text-align: center">	
-						{%= data[i]["last_invoice_date"] %}
+						{%= data[i]["last_invoice_date"] && moment(data[i]["last_invoice_date"]).format("DD-MMM") %}
 					</td>
 					<td  style="max-width: 41px; font-size: 0.7rem; text-align: center">	
 						{%= data[i]["last_invoice_amount"]!=0?data[i]["last_invoice_amount"]:'' %}
 					</td>
 					<td style="max-width: 45px; font-size: 0.7rem;  text-align: center">	
-						{%= data[i]["last_payment_date"] %}
+						{%= data[i]["last_payment_date"] && moment(data[i]["last_payment_date"]).format("DD-MMM") %}
 					</td>
 					<td  style="max-width: 41px; font-size: 0.7rem; text-align: center">	
 						{%= data[i]["last_payment_amount"]!=0?data[i]["last_payment_amount"]:'' %}
 					</td>
 
-					<td  style="max-width: 60px; text-align: center; font-size:1.1rem">
+					<td  style="max-width: 60px; text-align: center; font-size:1.05rem">
 						{%=format_currency(data[i]["overdue_amount"],data[i]["currency"],0)%}
 					</td>
 					
