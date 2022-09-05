@@ -16,14 +16,14 @@
  "report_name": "Profit and Loss Statement", 
  "report_type": "Script Report", 
  "roles": [
-  {
-   "role": "Accounts User"
-  }, 
-  {
-   "role": "Accounts Manager"
-  }, 
-  {
-   "role": "Auditor"
-  }
+    {
+      "role": "Report Manager"
+    }, 
+    {
+      "role": "System Manager"
+    }, 
+    {
+      "role": "Auditor"
+    }
  ]
 }
