@@ -251,6 +251,9 @@ def get_items(filters):
 		if filters.get("brand"): # used in stock analytics report
 			conditions.append("item.brand=%(brand)s")
 
+	if filters.get("show_only_enabled"):
+		conditions.append("item.disabled=0")
+  
 	items = []
 	if conditions:
 		items = frappe.db.sql_list("""select name from `tabItem` item where {}"""

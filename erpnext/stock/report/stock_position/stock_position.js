@@ -47,13 +47,6 @@ frappe.query_reports["Stock Position"] = {
 			}
 		},
 		{
-			"fieldname": "brand",
-			"label": __("Brand"),
-			"fieldtype": "Link",
-			"width": "80",
-			"options": "Brand"
-		},
-		{
 			"fieldname": "warehouse",
 			"label": __("Warehouse"),
 			"fieldtype": "Link",
@@ -93,6 +86,12 @@ frappe.query_reports["Stock Position"] = {
 			"fieldname": 'show_stock_ageing_data',
 			"label": __('Show Stock Ageing Data'),
 			"fieldtype": 'Check'
+		},
+		{
+			"fieldname": 'show_only_enabled',
+			"label": __('Only Enabled Items'),
+			"fieldtype": 'Check',
+			"default": 1
 		},
 	],
 
