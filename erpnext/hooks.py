@@ -1,4 +1,5 @@
 from frappe import _
+from .jinja import jenvs
 
 app_name = "erpnext"
 app_title = "ERPNext"
@@ -807,3 +808,5 @@ global_search_doctypes = {
 additional_timeline_content = {
 	"*": ["erpnext.telephony.doctype.call_log.call_log.get_linked_call_logs"]
 }
+
+jenv  = jenvs
