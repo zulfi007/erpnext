@@ -29,14 +29,14 @@ class DeliveryTrip(Document):
 
 	def on_submit(self):
 		self.update_status()
-		self.update_delivery_notes()
+		self.update_sales_invoices()
 
 	def on_update_after_submit(self):
 		self.update_status()
 
 	def on_cancel(self):
 		self.update_status()
-		self.update_delivery_notes(delete=True)
+		self.update_sales_invoices(delete=True)
 
 	def validate_stop_addresses(self):
 		for stop in self.delivery_stops:
@@ -55,6 +55,38 @@ class DeliveryTrip(Document):
 
 		self.db_set("status", status)
 
+	def update_sales_invoices(self, delete=False):
+		"""
+		Update all connected Sales Invoices with Delivery Trip details
+		(Driver, Vehicle, etc.). If `delete` is `True`, then details
+		are removed.
+
+		Args:
+				delete (bool, optional): Defaults to `False`. `True` if driver details need to be emptied, else `False`.
+		"""
+
+		sales_invoices = list(
+			set(stop.sales_invoice for stop in self.delivery_stops if stop.sales_invoice)
+		)
+
+		update_fields = {
+			"lr_no": self.name,
+			"lr_date": self.departure_time,
+		}
+
+		for sales_invoice in sales_invoices:
+			note_doc = frappe.get_doc("Sales Invoice", sales_invoice)
+
+			for field, value in update_fields.items():
+				value = None if delete else value
+				setattr(note_doc, field, value)
+
+			note_doc.flags.ignore_validate_update_after_submit = True
+			note_doc.save()
+
+		sales_invoices = [get_link_to_form("Sales Invoice", note) for note in sales_invoices]
+		frappe.msgprint(_("Sales Invoices {0} updated").format(", ".join(sales_invoices)))
+
 	def update_delivery_notes(self, delete=False):
 		"""
 		Update all connected Delivery Notes with Delivery Trip details
@@ -62,7 +94,7 @@ class DeliveryTrip(Document):
 		are removed.
 
 		Args:
-		        delete (bool, optional): Defaults to `False`. `True` if driver details need to be emptied, else `False`.
+				delete (bool, optional): Defaults to `False`. `True` if driver details need to be emptied, else `False`.
 		"""
 
 		delivery_notes = list(
@@ -98,7 +130,7 @@ class DeliveryTrip(Document):
 		on the optimized order, before estimating the arrival times.
 
 		Args:
-		        optimize (bool): True if route needs to be optimized, else False
+				optimize (bool): True if route needs to be optimized, else False
 		"""
 
 		departure_datetime = get_datetime(self.departure_time)
@@ -151,10 +183,10 @@ class DeliveryTrip(Document):
 		split into sublists at the specified lock position(s).
 
 		Args:
-		        optimize (bool): `True` if route needs to be optimized, else `False`
+				optimize (bool): `True` if route needs to be optimized, else `False`
 
 		Returns:
-		        (list of list of str): List of address routes split at locks, if optimize is `True`
+				(list of list of str): List of address routes split at locks, if optimize is `True`
 		"""
 		if not self.driver_address:
 			frappe.throw(_("Cannot Calculate Arrival Time as Driver Address is Missing."))
@@ -188,8 +220,8 @@ class DeliveryTrip(Document):
 		for vehicle routing problems.
 
 		Args:
-		        optimized_order (list of int): The index-based optimized order of the route
-		        start (int): The index at which to start the rearrangement
+				optimized_order (list of int): The index-based optimized order of the route
+				start (int): The index at which to start the rearrangement
 		"""
 
 		stops_order = []
@@ -214,11 +246,11 @@ class DeliveryTrip(Document):
 		but it only works for routes without any waypoints.
 
 		Args:
-		        route (list of str): Route addresses (origin -> waypoint(s), if any -> destination)
-		        optimize (bool): `True` if route needs to be optimized, else `False`
+				route (list of str): Route addresses (origin -> waypoint(s), if any -> destination)
+				optimize (bool): `True` if route needs to be optimized, else `False`
 
 		Returns:
-		        (dict): Route legs and, if `optimize` is `True`, optimized waypoint order
+				(dict): Route legs and, if `optimize` is `True`, optimized waypoint order
 		"""
 		if not frappe.db.get_single_value("Google Settings", "api_key"):
 			frappe.throw(_("Enter API key in Google Settings."))
@@ -243,6 +275,8 @@ class DeliveryTrip(Document):
 			frappe.throw(_(str(e)))
 
 		return directions[0] if directions else False
+
+	def get_print_format(self): pass
 
 
 @frappe.whitelist()
@@ -331,10 +365,10 @@ def sanitize_address(address):
 	Remove HTML breaks in a given address
 
 	Args:
-	        address (str): Address to be sanitized
+			address (str): Address to be sanitized
 
 	Returns:
-	        (str): Sanitized address
+			(str): Sanitized address
 	"""
 
 	if not address:
