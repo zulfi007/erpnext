@@ -4,7 +4,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe import _, scrub
-from frappe.utils import (today, get_link_to_form, get_url_to_report, global_date_format, now,
+from frappe.utils import (today,get_link_to_form, get_url_to_report, global_date_format, now,
 						format_time,flt)
 from six import iteritems
 from frappe.query_builder.functions import Sum, Concat
@@ -39,6 +39,7 @@ class CollectionReport():
 		self.total_expenses=0
 		self.cash_in_hand =0
 		self.bank_in_hand=0
+		self.today_cash=0
 		self.total_sales=0
 		self.total_payments=0
 		self.acc_receivable=0
@@ -48,8 +49,9 @@ class CollectionReport():
 			.join(accounts) \
 			.on(journal.name == accounts.parent) \
 			.where(journal.posting_date==filters.report_date) \
-			.where(accounts.account !='Cash - AT') \
-			.where(accounts.debit!=0) \
+      		.where(journal.docstatus==1) \
+			.where(accounts.account!='Cash - AT') \
+            .where(accounts.debit!=0) \
 			.run(as_dict=True)	
 
 		collections = (frappe.qb.from_(pEntry)
@@ -101,17 +103,27 @@ class CollectionReport():
 		self.bank_in_hand = frappe.qb.from_(gl) \
 			.select((Sum(gl.debit)-Sum(gl.credit)).as_("value")) \
 			.where(gl.account.isin(banks) ) \
+       		.where(gl.docstatus==1) \
 			.run(as_dict=True)[0].value
 
 		self.cash_in_hand = frappe.qb.from_(gl) \
 		.select((Sum(gl.debit)-Sum(gl.credit)).as_("value")) \
 		.where(gl.account.isin(['Cash - AT','Cash In Hand - AT' ]) ) \
+      	.where(gl.docstatus==1) \
 		.run(as_dict=True)[0].value
 
+		self.today_cash = frappe.qb.from_(gl) \
+		.select((Sum(gl.debit)-Sum(gl.credit)).as_("value")) \
+		.where(gl.account.isin(['Cash - AT','Cash In Hand - AT' ]) ) \
+      	.where(gl.docstatus==1) \
+        .where(gl.posting_date== filters.report_date) \
+        .run(as_dict=True)[0].value        
+  
 
 		self.acc_receivable = frappe.qb.from_(gl) \
 		.select((Sum(gl.debit)-Sum(gl.credit)).as_("value")) \
 		.where(gl.party_type =='Customer') \
+      	.where(gl.docstatus==1) \
 		.run(as_dict=True)[0].value
 
 		chart_data=[ val['net_amount'] for val in collections]	
@@ -119,6 +131,7 @@ class CollectionReport():
 
 		summary={
 			'cash_in_hand':self.cash_in_hand,
+   			'today_cash':self.today_cash,
 			'bank_in_hand':self.bank_in_hand,
 			'today_collection':self.total_paid,
 			'today_expenses':self.total_expenses,
@@ -145,12 +158,17 @@ class CollectionReport():
 	def get_summary(self,filters):
 		self.summary = [{	
 				"value": self.total_paid,
-				"label": _("Total Collection"),
+				"label": _("Today Collection"),
 				"fieldtype": "Data",
 			},
 			{
 				"value": self.total_expenses,
-				"label": _("Total Expense"),
+				"label": _("Today Expense"),
+				"fieldtype": "Data",
+			},
+   			{
+				"value": self.today_cash,
+				"label": _("=Today Cash"),
 				"fieldtype": "Data",
 			},
 			{
