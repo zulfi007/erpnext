@@ -18,7 +18,7 @@ def trip_items(doc=None):
                 select i.item_name, i.stock_uom, conv.conversion_factor ,sum(i.stock_qty) as qty from `tabSales Invoice Item` as i
                 left join `tabUOM Conversion Detail` as conv
                 on conv.parent = i.item_code
-                where i.parent in %(sales_invoices)s and conv.uom ='Carton'
+                where i.parent in %(sales_invoices)s and conv.conversion_factor > 1
                 group by i.item_name 
                 """,values=values ,as_dict=True)
     return res
