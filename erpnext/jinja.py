@@ -17,7 +17,7 @@ def trip_items(doc=None):
     res=frappe.db.sql("""
                 select i.item_name, i.stock_uom, 
                 min(conv.conversion_factor) as conversion_factor,
-                min(conv.uom) as bulk_uom
+                min(conv.uom) as bulk_uom,
                 sum(i.stock_qty) as qty from `tabSales Invoice Item` as i
                 left join `tabUOM Conversion Detail` as conv
                 on conv.parent = i.item_code
