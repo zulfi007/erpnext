@@ -350,6 +350,7 @@
    "label": "Reason For Putting On Hold"
   },
   {
+   "allow_on_submit": 1,
    "collapsible": 1,
    "collapsible_depends_on": "bill_no",
    "fieldname": "supplier_invoice_details",
@@ -357,6 +358,7 @@
    "label": "Supplier Invoice Details"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "bill_no",
    "fieldtype": "Data",
    "label": "Supplier Invoice No",
@@ -1437,12 +1439,11 @@
  "idx": 204,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-10-07 14:19:14.214157",
+ "modified": "2023-01-13 09:17:31.138288",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Purchase Invoice",
  "name_case": "Title Case",
- "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
@@ -1497,7 +1498,6 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": [],
  "timeline_field": "supplier",
  "title_field": "title",
  "track_changes": 1
