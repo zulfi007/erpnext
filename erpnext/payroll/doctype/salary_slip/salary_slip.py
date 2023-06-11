@@ -1,17 +1,18 @@
 # Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
-import datetime
-import math
+from datetime import date
 
 import frappe
 from frappe import _, msgprint
 from frappe.model.naming import make_autoname
 from frappe.utils import (
 	add_days,
+	ceil,
 	cint,
 	cstr,
 	date_diff,
+	floor,
 	flt,
 	formatdate,
 	get_first_day,
@@ -57,8 +58,10 @@ class SalarySlip(TransactionBase):
 			"float": float,
 			"long": int,
 			"round": round,
-			"date": datetime.date,
+			"date": date,
 			"getdate": getdate,
+			"ceil": ceil,
+			"floor": floor,
 		}
 
 	def autoname(self):
@@ -653,15 +656,17 @@ class SalarySlip(TransactionBase):
 			amount = self.eval_condition_and_formula(struct_row, data)
 
 			if struct_row.statistical_component:
+				default_data[struct_row.abbr] = amount
+
 				# update statitical component amount in reference data based on payment days
 				# since row for statistical component is not added to salary slip
 				if struct_row.depends_on_payment_days:
-					joining_date, relieving_date = self.get_joining_and_relieving_dates()
-					default_data[struct_row.abbr] = amount
-					data[struct_row.abbr] = flt(
-						(flt(amount) * flt(self.payment_days) / cint(self.total_working_days)),
-						struct_row.precision("amount"),
+					payment_days_amount = (
+						flt(amount) * flt(self.payment_days) / cint(self.total_working_days)
+						if self.total_working_days
+						else 0
 					)
+					data[struct_row.abbr] = payment_days_amount
 
 			elif amount or struct_row.amount_based_on_formula and amount is not None:
 				default_amount = self.eval_condition_and_formula(struct_row, default_data)
@@ -957,7 +962,7 @@ class SalarySlip(TransactionBase):
 			tax_slab.allow_tax_exemption, payroll_period=payroll_period
 		)
 		future_structured_taxable_earnings = current_taxable_earnings.taxable_earnings * (
-			math.ceil(remaining_sub_periods) - 1
+			ceil(remaining_sub_periods) - 1
 		)
 
 		# get taxable_earnings, addition_earnings for current actual payment days
@@ -1331,6 +1336,7 @@ class SalarySlip(TransactionBase):
 				if declaration:
 					total_exemption_amount = declaration
 
+		if tax_slab.standard_tax_exemption_amount:
 			total_exemption_amount += flt(tax_slab.standard_tax_exemption_amount)
 
 		return total_exemption_amount
