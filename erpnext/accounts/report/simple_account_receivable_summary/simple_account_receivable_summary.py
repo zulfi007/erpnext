@@ -31,7 +31,7 @@ class ReceivableSummaryReport():
 		gl	= 	frappe.qb.DocType('GL Entry')
 		customerTable	= 	frappe.qb.DocType('Customer')
 		invoiceTable = frappe.qb.DocType('Sales Invoice')
-		kpi	= frappe.qb.DocType('Customer KPI')
+		kpi	= frappe.qb.DocType('Credit Controller')
 		debit = 	Sum(gl.debit).as_("debit")
 		credit = 	Sum(gl.credit).as_("credit")
 		customer = (frappe.qb.from_(customerTable)
