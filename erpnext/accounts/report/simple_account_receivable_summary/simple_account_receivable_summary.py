@@ -3,15 +3,13 @@
 
 from __future__ import unicode_literals
 import frappe
-from frappe import _, scrub
-from frappe.utils import flt, cint,getdate
+from frappe import _
 from six import iteritems
-from frappe.query_builder.functions import Sum,Max
+from frappe.query_builder.functions import Sum
 from pypika import AliasedQuery
 from functools import reduce
 from itertools import accumulate, groupby
 
-from soupsieve import select
 
 
 def execute(filters=None):
@@ -36,7 +34,7 @@ class ReceivableSummaryReport():
 		credit = 	Sum(gl.credit).as_("credit")
 		customer = (frappe.qb.from_(customerTable)
 					.left_join(kpi)
-					.on(customerTable.name == kpi.parent)
+					.on(customerTable.name == kpi.customer)
 					.select(customerTable.star,kpi.last_payment_amount,kpi.last_payment_date,
 							kpi.last_invoice_date,kpi.last_invoice_amount,kpi.overdue_amount)
 					.where(customerTable.disabled==0)
@@ -50,13 +48,6 @@ class ReceivableSummaryReport():
 		if filters.address is not None :
 			customer=customer.where(customerTable.primary_address.like('%'+str(filters.address)+'%'))
 
-		# invoices = (frappe.qb.from_(invoiceTable)
-		# 			.select(invoiceTable.customer_name,Sum(invoiceTable.outstanding_amount).as_("outstanding_amount"))
-		# 			.where(invoiceTable.docstatus==1)
-		# 			.where(invoiceTable.status=='Overdue')
-		# 			.where(invoiceTable.due_date < getdate())
-		# 			.groupby(invoiceTable.customer_name)
-		# 			)
 
 		query = (frappe.qb.from_(gl)
 
@@ -75,13 +66,7 @@ class ReceivableSummaryReport():
 			.select(cust.customer_name,cust.primary_address,cust.sales_person,cust.last_payment_amount, cust.last_payment_date,cust.last_invoice_amount,cust.last_invoice_date, cust.overdue_amount,cust.territory)
 			)
 		
-		# Inv=AliasedQuery('Inv')
-
-		# query=(query.with_(invoices,'Inv')		
-		# 	.left_join(Inv)
-		# 	.on(gl.party==Inv.customer_name)
-		# 	.select(Inv.outstanding_amount))
-		
+	
 		if filters.customer_name is not None :
 			query=query.where(gl.party==filters.customer_name)
 	
