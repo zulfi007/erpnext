@@ -643,9 +643,3 @@ extend_bootinfo = [
 	"erpnext.support.doctype.service_level_agreement.service_level_agreement.add_sla_doctypes",
 	"erpnext.startup.boot.bootinfo",
 ]
-
-jinja = {
-    "methods": [
-        "erpnext.jinja.trip_items"
-    ],
-}

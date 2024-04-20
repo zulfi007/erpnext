@@ -977,7 +977,7 @@ class ReceivablePayableReport(object):
 	def get_party_details(self, party):
 		if not party in self.party_details:
 			if "Customer" in self.party_type:
-				fields = ["customer_name", "territory", "customer_group", "customer_primary_contact","primary_address","sales_person"]
+				fields = ["customer_name", "territory", "customer_group", "customer_primary_contact"]
 
 				if self.filters.get("sales_partner"):
 					fields.append("default_sales_partner")
