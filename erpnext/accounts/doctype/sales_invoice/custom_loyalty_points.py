@@ -144,7 +144,7 @@ def make_loyalty_point_entry(si, method=None):
 
         update_loyalty_point(against_si_doc)
 
-def on_cancel(doc, method=None):
+def cancel_loyalty_point_entry(doc, method=None):
     if not doc.is_return and not doc.is_consolidated and doc.loyalty_program:
         doc.delete_loyalty_point_entry()
     elif doc.is_return and doc.return_against and not doc.is_consolidated and doc.loyalty_program:
