@@ -336,11 +336,15 @@ doc_events = {
 			"erpnext.regional.italy.utils.sales_invoice_on_submit",
 			"erpnext.regional.saudi_arabia.utils.create_qr_code",
 			"erpnext.erpnext_integrations.taxjar_integration.create_transaction",
+			"erpnext.accounts.doctype.sales_invoice.custom_loyalty_points.make_loyalty_point_entry",
+
 		],
 		"on_cancel": [
 			"erpnext.regional.italy.utils.sales_invoice_on_cancel",
 			"erpnext.erpnext_integrations.taxjar_integration.delete_transaction",
 			"erpnext.regional.saudi_arabia.utils.delete_qr_code_file",
+			"erpnext.accounts.doctype.sales_invoice.custom_loyalty_points.cancel_loyalty_point_entry",
+
 		],
 		"on_trash": "erpnext.regional.check_deletion_permission",
 	},
